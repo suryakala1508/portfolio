@@ -1,0 +1,284 @@
+@import "tailwindcss";
+
+/* Tailwind 4: enable class-based dark mode (default is `dark`, kept default) */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ------------------------------------------------------------------------ */
+/* Design tokens — signature GREEN + BLUE identity.                         */
+/* Dark (deep midnight navy) is the default theme; light is a fully styled  */
+/* alternative. Exactly two accents, used on purpose, never mixed randomly: */
+/*                                                                          */
+/*   BLUE (--color-accent)   -> primary buttons, links, active nav          */
+/*   EMERALD (--color-emerald) -> hover states, card accents, tags, badges  */
+/*                                                                          */
+/* TODO: to re-theme, change --color-accent (blue) and --color-emerald      */
+/* (green) below — every button, card, tag, and the hero gradient reads     */
+/* from these two values, so nothing else needs to change.                 */
+/* ------------------------------------------------------------------------ */
+@theme {
+  --color-bg: #0b1120;
+  --color-bg-alt: #0e1526; /* barely lighter than --color-bg — gives alternating sections a subtle rhythm */
+  --color-bg-translucent: rgba(11, 17, 32, 0.72); /* navbar background once scrolled, paired with backdrop-blur */
+  --color-surface: #111a2e;
+  --color-surface-hover: #16213a;
+  --color-border: #1e293b;
+  --color-border-strong: #29344a;
+  --color-text: #e8eef5;
+  --color-text-secondary: #9aa7bd;
+  --color-text-muted: #6b7787;
+
+  --color-accent: #2563eb; /* rich navy blue (blue-600) — TODO: primary color */
+  --color-accent-hover: #3b82f6; /* brighter blue-500, on hover against the dark background */
+  --color-accent-soft: rgba(37, 99, 235, 0.16);
+
+  --color-emerald: #10b981; /* TODO: secondary color */
+  --color-emerald-hover: #34d399; /* emerald-400, lighter on hover against the dark background */
+  --color-emerald-soft: rgba(16, 185, 129, 0.14);
+
+  /* Faint navy tint reserved for tech-tag chips specifically. */
+  --color-tag-bg: rgba(37, 99, 235, 0.1);
+  --color-tag-border: rgba(37, 99, 235, 0.32);
+
+  --gradient-signature: linear-gradient(90deg, var(--color-accent), var(--color-emerald));
+
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "Fira Code", monospace;
+
+  --radius: 0.625rem;
+
+  --animate-fade-up: fade-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
+/* Light theme — same two accents, flat off-white surfaces, dark navy text. */
+:root:not(.dark) {
+  --color-bg: #f8fafc;
+  --color-bg-alt: #f1f5f9;
+  --color-bg-translucent: rgba(248, 250, 252, 0.72);
+  --color-surface: #ffffff;
+  --color-surface-hover: #f1f5f9;
+  --color-border: rgba(15, 23, 42, 0.09);
+  --color-border-strong: rgba(15, 23, 42, 0.16);
+  --color-text: #0f172a;
+  --color-text-secondary: #475569;
+  --color-text-muted: #64748b;
+
+  --color-accent-hover: #1d4ed8; /* deeper blue-700, darker on hover against a light background */
+  --color-accent-soft: rgba(37, 99, 235, 0.08);
+
+  --color-emerald-hover: #059669; /* emerald-600, darker on hover against a light background */
+  --color-emerald-soft: rgba(16, 185, 129, 0.08);
+
+  --color-tag-bg: rgba(37, 99, 235, 0.06);
+  --color-tag-border: rgba(37, 99, 235, 0.2);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply antialiased;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+  width: 100%;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display);
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+/* Custom text-selection color — emerald, with a near-black fill for contrast. */
+::selection {
+  background-color: var(--color-emerald);
+  color: #04140d;
+}
+
+/* Visible, consistent BLUE keyboard focus ring everywhere — buttons, links, form fields. */
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-border-strong);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-emerald);
+}
+
+/* Shared hairline border color, used instead of one-off slate/white classes. */
+.border-subtle {
+  border-color: var(--color-border);
+}
+
+/* Faint dotted texture — used ONLY behind the hero, so the page opens with a
+   touch of depth instead of a blank void, without becoming a "pattern". */
+.dot-grid {
+  background-image: radial-gradient(var(--color-border-strong) 1px, transparent 1px);
+  background-size: 24px 24px;
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 30%, black 40%, transparent 100%);
+}
+
+/* Small uppercase mono label — used ONLY for tech tags and small metadata
+   (dates, periods), never for section kickers or headings. */
+.label {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+/* Section kicker — small uppercase sans label above every section heading,
+   for an editorial feel. Emerald, per the accent role split. */
+.kicker {
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-emerald);
+}
+
+/* Fluid, tight-tracked display headline — used for the hero name. */
+.hero-name {
+  font-family: var(--font-display);
+  font-size: clamp(2.75rem, 8vw, 6.25rem);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  font-weight: 700;
+}
+
+/* Blue -> green gradient text fill, the site's signature moment. */
+.gradient-text {
+  background-image: var(--gradient-signature);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Flat card: solid surface, 1px border, soft shadow, thin blue->green top
+   strip, emerald glow on hover — the shared signature card treatment used
+   by every card on the site (project, experience, education, etc). */
+.card {
+  position: relative;
+  overflow: hidden;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+.card::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 3px;
+  background: var(--gradient-signature);
+}
+.card:hover {
+  border-color: var(--color-emerald);
+  box-shadow: 0 0 0 1px var(--color-emerald), 0 12px 28px rgba(16, 185, 129, 0.16);
+  transform: translateY(-3px);
+}
+
+/* Small mono index number ("01", "02"...) pinned to a card's top-right corner. */
+.card-index {
+  position: absolute;
+  top: 0.85rem;
+  right: 1rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  color: var(--color-emerald);
+}
+
+.icon-btn {
+  transition: color 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+}
+.icon-btn:hover {
+  color: var(--color-emerald);
+  border-color: var(--color-emerald);
+}
+.icon-btn:active {
+  transform: scale(0.94);
+}
+
+.btn-primary {
+  background: var(--color-accent);
+  color: #ffffff;
+}
+.btn-primary:hover {
+  background: var(--color-accent-hover);
+}
+
+.btn-secondary {
+  border-color: var(--color-emerald);
+  color: var(--color-emerald);
+}
+.btn-secondary:hover {
+  background: var(--color-emerald-soft);
+}
+
+/* Tactile press feedback shared by every button variant. */
+.btn-press:active {
+  transform: scale(0.98);
+}
+
+/* Hover-state underline, used for nav links and ghost buttons — emerald,
+   since blue is reserved for the "already active/primary" state. */
+.link-underline {
+  background-image: linear-gradient(var(--color-emerald), var(--color-emerald));
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  background-size: 0% 2px;
+  transition: background-size 0.2s ease;
+}
+.link-underline:hover,
+.link-underline:focus-visible {
+  background-size: 100% 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
